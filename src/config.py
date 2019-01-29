@@ -46,9 +46,6 @@ class Logger:
     def logger(self):
         return self.__logger
 
-    def get_logger(self):
-        return self.__logger
-
 
 def init_context():
     context = get_context()

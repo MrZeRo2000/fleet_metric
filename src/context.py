@@ -1,6 +1,6 @@
 
 class ComponentFactory:
-    _instance = None
+    __instance = None
     components = {}
 
     def register_singleton_component(self, component):
@@ -13,10 +13,10 @@ class ComponentFactory:
 
     @staticmethod
     def _get_instance():
-        if ComponentFactory._instance is None:
-            ComponentFactory._instance = ComponentFactory()
+        if ComponentFactory.__instance is None:
+            ComponentFactory.__instance = ComponentFactory()
 
-        return ComponentFactory._instance
+        return ComponentFactory.__instance
 
 """
 def inject(context=None):
