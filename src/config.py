@@ -42,6 +42,10 @@ class Logger:
         self.__logger.addHandler(file_handler)
         self.__logger.addHandler(console_handler)
 
+    @property
+    def logger(self):
+        return self.__logger
+
     def get_logger(self):
         return self.__logger
 
@@ -49,4 +53,4 @@ class Logger:
 def init_context():
     context = get_context()
     context.register_singleton_component(Configuration())
-    context.register_singleton_component(Logger("ts_metrics"))
+    context.register_singleton_component(Logger("ts_metrics").logger)

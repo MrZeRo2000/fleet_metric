@@ -1,5 +1,6 @@
 
 from src.context import inject
+from src.context import inject_p
 from src.config import Configuration
 from src.config import init_context
 from src.config import get_context
@@ -8,23 +9,23 @@ from unittest import TestCase
 
 class TestContext(TestCase):
 
-    @staticmethod
+    @property
     @inject
-    def get_configuration():
+    def configuration(self):
         pass
 
-    @staticmethod
+    @property
     @inject
-    def get_logger():
+    def logger(self):
         pass
 
     def setUp(self):
         init_context()
 
     def test_configuration(self):
-        configuration = TestContext.get_configuration()
+        configuration = self.configuration
         if configuration is None:
             print("No configuration is available")
 
-        logger = TestContext.get_logger().get_logger()
+        logger = self.logger
         logger.info("Test log message")

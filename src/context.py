@@ -31,10 +31,21 @@ def inject(context=None):
 
 
 def inject(func):
-    def wrapper():
-        component_id = func.__name__.split("_")[1].capitalize()
+    def wrapper(*args, **kwargs):
+        data = func.__name__.split("_")
+        if len(data) == 1:
+            component_id = data[0].capitalize()
+        else:
+            component_id = data[1].capitalize()
         get_context_func = func.__globals__.get('get_context')
         return get_context_func().components[component_id]
+
+    return wrapper
+
+
+def inject_p(func):
+    def wrapper(*args, **kwargs):
+        fn = func.__name__
 
     return wrapper
 
