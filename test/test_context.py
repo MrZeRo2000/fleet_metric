@@ -1,9 +1,6 @@
 
 from src.context import inject
-from src.context import inject_p
-from src.config import Configuration
-from src.config import init_context
-from src.config import get_context
+from app import AppContext
 from unittest import TestCase
 
 
@@ -20,7 +17,7 @@ class TestContext(TestCase):
         pass
 
     def setUp(self):
-        init_context()
+        AppContext.init_context()
 
     def test_configuration(self):
         configuration = self.configuration

@@ -3,7 +3,6 @@ from functools import wraps
 from unittest import TestCase
 
 
-
 def log_decorator(func):
     @wraps(func)
     def log_wrapper(*args, **kwargs):
