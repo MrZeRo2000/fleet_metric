@@ -87,11 +87,17 @@ class OracleLoader(OracleInterface):
 
 class OracleLogHandler(logging.Handler):
 
-    def __init__(self, config_file_name):
+    @property
+    @inject
+    def oracle_interface(self) -> OracleInterface:
+        pass
+
+    def __init__(self):
         logging.Handler.__init__(self)
 
-        oi = OracleInterface(config_file_name)
-        self.ou = oi.ou
+        # oi = OracleInterface(config_file_name)
+        # self.ou = oi.ou
+        self.__ou = self.oracle_interface.get()
 
     def emit(self, record):
         stmt = """
@@ -115,7 +121,7 @@ class OracleLogHandler(logging.Handler):
         """
 
         params = {
-            "module_name": record.module,
+            "module_name": record.args["module"],
             "logger_name": record.name,
             "level_name": record.levelname,
             "message": record.message,
@@ -124,5 +130,5 @@ class OracleLogHandler(logging.Handler):
             "exc_text": record.exc_text
         }
 
-        self.ou.execute_statement(stmt, params)
-        self.ou.commit()
+        self.__ou.execute_statement(stmt, params)
+        self.__ou.commit()

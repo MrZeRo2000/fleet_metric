@@ -3,10 +3,11 @@ from app import AppContext
 from config import Configuration
 from context import inject
 import sys
-from log import Logger
+from logging import Logger
 from log import log_method
 from app_config import AppConfig
 from oracle_interface import OracleInterface
+from oracle_interface import OracleLogHandler
 
 
 class Main:
@@ -34,7 +35,9 @@ class Main:
         if len(self.__args) < 2:
             raise Exception("Configuration file name should be provided as first argument")
         self.configuration.load(self.__args[1])
-        ou = self.oracle_interface.get()
+        # ou = self.oracle_interface.get()
+        if self.configuration.get().get("database").get("logging"):
+            self.logger.addHandler(OracleLogHandler())
 
     @log_method
     def execute(self):

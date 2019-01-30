@@ -1,6 +1,14 @@
+
+from functools import wraps
 import datetime
 import logging
 import os
+
+
+class Formatter(logging.Formatter):
+    def format(self, record):
+        record.module = record.args["module"]
+        return super(Formatter, self).format(record)
 
 
 class Logger:
@@ -10,7 +18,7 @@ class Logger:
     LOG_PATH = "log"
     """Log path"""
 
-    LOG_FORMAT = "%(asctime)s %(levelname)s %(name)s %(message)s"
+    LOG_FORMAT = "%(asctime)s %(levelname)s %(name)s %(module)s %(message)s"
     """Log format"""
 
     def __init__(self, name):
@@ -22,7 +30,7 @@ class Logger:
         log_path = os.path.join(os.path.dirname(__file__), "../" + self.LOG_PATH)
 
         log_file_name = os.path.join(log_path, self.LOG_FILE_FORMAT.format(today.year, today.month, today.day))
-        formatter = logging.Formatter(self.LOG_FORMAT)
+        formatter = Formatter(self.LOG_FORMAT)
 
         file_handler = logging.FileHandler(log_file_name)
         file_handler.setLevel(logging.DEBUG)
@@ -44,9 +52,11 @@ class Logger:
 def log_method(func):
     def wrapper(*args, **kwargs):
         logger = func.__globals__.get("AppContext").get_context().components.get(Logger.__name__)
-        logger.info("Started " + str(args[0]) + "." + func.__name__)
+        func_name = args[0].__class__.__name__ + "." + func.__name__
+        module_name = args[0].__class__.__module__.strip("__")
+        logger.info(func_name + " started", {"module": module_name})
         result = func(*args, **kwargs)
-        logger.info("Completed " + str(args[0]) + "." + func.__name__)
+        logger.info(func_name + " completed", {"module": module_name})
         return result
 
     return wrapper
