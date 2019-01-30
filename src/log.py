@@ -37,16 +37,16 @@ class Logger:
         self.__logger.addHandler(console_handler)
 
     @property
-    def logger(self):
+    def logger(self) -> logging.Logger:
         return self.__logger
 
 
 def log_method(func):
     def wrapper(*args, **kwargs):
         logger = func.__globals__.get("AppContext").get_context().components.get(Logger.__name__)
-        logger.info("Started " + func.__name__)
+        logger.info("Started " + str(args[0]) + "." + func.__name__)
         result = func(*args, **kwargs)
-        logger.info("Completed " + func.__name__)
+        logger.info("Completed " + str(args[0]) + "." + func.__name__)
         return result
 
     return wrapper

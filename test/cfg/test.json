@@ -1,0 +1,13 @@
+{
+  "database": {
+    "logging":false,
+    "connection":"drivenow_bi/drivenow_bi@sxbistax",
+    "calc_stmt":"",
+    "load_stmt":[
+      "SELECT",
+      "x",
+      "FROM",
+      "dual"
+    ]
+  }
+}

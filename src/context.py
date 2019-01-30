@@ -34,10 +34,13 @@ def inject(context=None):
 def inject(func):
     def wrapper(*args, **kwargs):
         data = func.__name__.split("_")
+        """
         if len(data) == 1:
             component_id = data[0].capitalize()
         else:
             component_id = data[1].capitalize()
+        """
+        component_id = "".join([item.capitalize() for item in data])
         return func.__globals__.get('AppContext').get_context().get_instance().components[component_id]
 
     return wrapper

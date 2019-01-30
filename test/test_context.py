@@ -1,23 +1,8 @@
 
-from src.context import inject
-from app import AppContext
-from unittest import TestCase
+from test_common import ContextTestCase
 
 
-class TestContext(TestCase):
-
-    @property
-    @inject
-    def configuration(self):
-        pass
-
-    @property
-    @inject
-    def logger(self):
-        pass
-
-    def setUp(self):
-        AppContext.init_context()
+class TestContext(ContextTestCase):
 
     def test_configuration(self):
         configuration = self.configuration
