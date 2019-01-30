@@ -35,17 +35,18 @@ class Main:
         if len(self.__args) < 2:
             raise Exception("Configuration file name should be provided as first argument")
         self.configuration.load(self.__args[1])
-        # ou = self.oracle_interface.get()
         if self.configuration.get().get("database").get("logging"):
             self.logger.addHandler(OracleLogHandler())
+        return self
 
     @log_method
     def execute(self):
         try:
-            self.configure()
+            pass
         except Exception as e:
             self.logger.fatal(e, exc_info=True)
             exit(1)
 
 
-Main(sys.argv).execute()
+Main(sys.argv).configure().execute()
+

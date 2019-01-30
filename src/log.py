@@ -52,11 +52,15 @@ class Logger:
 def log_method(func):
     def wrapper(*args, **kwargs):
         logger = func.__globals__.get("AppContext").get_context().components.get(Logger.__name__)
+
         func_name = args[0].__class__.__name__ + "." + func.__name__
         module_name = args[0].__class__.__module__.strip("__")
-        logger.info(func_name + " started", {"module": module_name})
+        module_info = {"module": module_name}
+
+        logger.info(func_name + " started", module_info)
         result = func(*args, **kwargs)
-        logger.info(func_name + " completed", {"module": module_name})
+        logger.info(func_name + " completed", module_info)
+
         return result
 
     return wrapper
