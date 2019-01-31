@@ -7,6 +7,9 @@ class Configuration:
     CONFIG_PATH = "cfg"
     """Log path"""
 
+    CSV_DELIMITER = ';'
+    """CSV file fields delimiter"""
+
     def __init__(self):
         self.__data = {}
 

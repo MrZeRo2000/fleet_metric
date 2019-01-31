@@ -6,7 +6,7 @@ import sys
 from logging import Logger
 from log import log_method
 from app_config import AppConfig
-from oracle_interface import OracleInterface
+from oracle_interface import OracleInterface, OracleLoader
 from oracle_interface import OracleLogHandler
 
 
@@ -30,6 +30,11 @@ class Main:
     def oracle_interface(self) -> OracleInterface:
         pass
 
+    @property
+    @inject
+    def oracle_loader(self) -> OracleLoader:
+        pass
+
     @log_method
     def configure(self):
         if len(self.__args) < 2:
@@ -37,7 +42,9 @@ class Main:
 
         self.configuration.load(self.__args[1])
 
-        if self.configuration.get().get("database").get("logging"):
+        self.logger.setLevel(self.configuration.get().get("logging").get("level"))
+
+        if self.configuration.get().get("logging").get("database_logging"):
             self.logger.addHandler(OracleLogHandler())
 
         return self
@@ -45,6 +52,9 @@ class Main:
     @log_method
     def execute(self):
         try:
+            if self.configuration.get().get("tasks").get("database_load"):
+                self.oracle_loader.load()
+
             return self
         except Exception as e:
             self.logger.fatal(e, exc_info=True)

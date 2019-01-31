@@ -1,6 +1,9 @@
 {
+  "logging": {
+    "database_logging":true,
+    "level": 10
+  },
   "database": {
-    "logging":true,
     "connection":"drivenow_bi/drivenow_bi@sxbistax",
     "calc_stmt":"",
     "load_stmt":[
@@ -25,10 +28,14 @@
     ]
   },
   "data_files": {
-    "data_file_name":"data/ts_metrics.txt",
-    "result_file_name":"data/ts_metrics_out.txt"
+    "data_file_name":"../data/ts_metrics.txt",
+    "result_file_name":"../data/ts_metrics_out.txt"
   },
   "model": {
     "metric_name":"INCOME_NETTO"
+  },
+  "tasks": {
+    "database_load":false,
+    "database_upload":false
   }
 }

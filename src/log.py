@@ -7,7 +7,23 @@ import os
 
 class Formatter(logging.Formatter):
     def format(self, record):
-        record.module = record.args["module"]
+
+        if len(record.args) == 0:
+            module = record.module
+        else:
+            module = str(record.args["module"])
+
+        if hasattr(record, "message"):
+            message = record.message
+        else:
+            if hasattr(record, "msg"):
+                message = str(record.msg)
+            else:
+                message = "No message for " + str(record)
+
+        record.module = module
+        record.message = message
+
         return super(Formatter, self).format(record)
 
 

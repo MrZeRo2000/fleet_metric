@@ -1,4 +1,5 @@
 
+import os
 import pandas as pd
 import logging
 from config import Configuration
@@ -32,28 +33,48 @@ class OracleInterface:
         connection_string = self.configuration.get().get("database").get("connection")
         self.__ou = OracleUtils(connection_string)
 
-    def get(self):
+    def get(self) -> OracleUtils:
         if self.__ou is None:
             self.connect()
         return self.__ou
 
 
-class OracleLoader(OracleInterface):
+class OracleLoader:
     """
     Oracle loader class
     """
 
-    def __init__(self, config_file_name):
-        super().__init__(config_file_name)
+    @property
+    @inject
+    def configuration(self) -> Configuration:
+        pass
 
-    def load_pred(self):
+    @property
+    @inject
+    def logger(self) -> Logger:
+        pass
+
+    @property
+    @inject
+    def oracle_interface(self) -> OracleInterface:
+        pass
+
+    @log_method
+    def load(self):
         """
-        Loads prediction data
+        Loads data
         :return: None
         """
 
-        file_name = self.config.get_predict_data_file_path()
-        self.ou.load_to_csv("SELECT * FROM dn_ml_customer_pred_view", file_name, Configuration.CSV_DELIMITER)
+        file_name = self.configuration.get().get("data_files").get("data_file_name")
+        full_file_name = os.path.abspath(os.path.join(os.path.dirname(__file__), file_name))
+        load_stmt = self.configuration.get().get("database").get("load_stmt")
+        load_stmt_str = "\n".join(load_stmt)
+
+        self.logger.debug("Executing\n" + load_stmt_str)
+        self.logger.debug("Destination path:" + full_file_name)
+
+        self.oracle_interface.get().load_to_csv(load_stmt_str, full_file_name, self.configuration.CSV_DELIMITER)
 
     def load_train(self):
         """
@@ -121,7 +142,7 @@ class OracleLogHandler(logging.Handler):
         """
 
         params = {
-            "module_name": record.args["module"],
+            "module_name": record.module,
             "logger_name": record.name,
             "level_name": record.levelname,
             "message": record.message,
