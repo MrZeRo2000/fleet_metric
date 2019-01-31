@@ -7,7 +7,7 @@ from oracle_utils import OracleUtils
 from context import inject
 from app import AppContext
 from log import log_method
-from log import Logger
+from logging import Logger
 
 
 class OracleInterface:
@@ -108,17 +108,10 @@ class OracleLoader:
 
 class OracleLogHandler(logging.Handler):
 
-    @property
     @inject
-    def oracle_interface(self) -> OracleInterface:
-        pass
-
-    def __init__(self):
+    def __init__(self, oi: OracleInterface):
         logging.Handler.__init__(self)
-
-        # oi = OracleInterface(config_file_name)
-        # self.ou = oi.ou
-        self.__ou = self.oracle_interface.get()
+        self.__ou = oi.get()
 
     def emit(self, record):
         stmt = """

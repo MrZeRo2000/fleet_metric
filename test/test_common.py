@@ -1,6 +1,7 @@
 
 from src.context import inject
 from app import AppContext
+from app_config import AppConfig
 from unittest import TestCase
 from config import Configuration
 from log import Logger
@@ -19,5 +20,5 @@ class ContextTestCase(TestCase):
         pass
 
     def setUp(self):
-        AppContext.init_context()
+        AppConfig.execute()
 

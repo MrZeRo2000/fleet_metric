@@ -27,11 +27,6 @@ class Main:
 
     @property
     @inject
-    def oracle_interface(self) -> OracleInterface:
-        pass
-
-    @property
-    @inject
     def oracle_loader(self) -> OracleLoader:
         pass
 

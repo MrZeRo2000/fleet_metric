@@ -1,5 +1,4 @@
 
-
 class ComponentFactory:
     __instance = None
     components = {}
@@ -11,6 +10,11 @@ class ComponentFactory:
 
     def get_component(self, component):
         return self.components[component.__class__.__name__]
+
+    def match_component_by_type(self, component_type: type):
+        result = list(filter(lambda c: type(c) == component_type, self.components.values()))
+        if len(result) > 0:
+            return result[0]
 
     @staticmethod
     def get_instance():
@@ -33,20 +37,18 @@ def inject(context=None):
 
 def inject(func):
     def wrapper(*args, **kwargs):
-        data = func.__name__.split("_")
-        """
-        if len(data) == 1:
-            component_id = data[0].capitalize()
-        else:
-            component_id = data[1].capitalize()
-        """
-        component_id = "".join([item.capitalize() for item in data])
-        return func.__globals__.get('AppContext').get_context().get_instance().components[component_id]
+        if func.__annotations__ is None:
+            return func(args, kwargs)
+
+        ctx = func.__globals__.get('AppContext').get_context().get_instance()
+
+        for (arg_key, arg_type) in func.__annotations__.items():
+            instance_required = arg_key not in kwargs
+            if instance_required and arg_key != 'return':
+                kwargs[arg_key] = ctx.match_component_by_type(arg_type)
+                return func(*args, **kwargs)
+
+        return_type = func.__annotations__['return']
+        return ctx.match_component_by_type(return_type)
 
     return wrapper
-
-
-"""
-def get_context():
-    return ComponentFactory._get_instance()
-"""
