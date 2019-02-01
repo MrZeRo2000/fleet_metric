@@ -1,10 +1,10 @@
 
 import os
 import json
-import context
+from context import component
 
 
-@context.component
+@component
 class Configuration:
     CONFIG_PATH = "cfg"
     """Log path"""

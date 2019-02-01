@@ -17,18 +17,15 @@ class Main:
 
     @property
     @inject
-    def configuration(self) -> Configuration:
-        pass
+    def configuration(self) -> Configuration: pass
 
     @property
     @inject
-    def logger(self) -> Logger:
-        pass
+    def logger(self) -> Logger: pass
 
     @property
     @inject
-    def oracle_loader(self) -> OracleLoader:
-        pass
+    def oracle_loader(self) -> OracleLoader: pass
 
     @log_method
     def configure(self):
@@ -40,8 +37,7 @@ class Main:
         self.logger.setLevel(self.configuration.get().get("logging").get("level"))
 
         if self.configuration.get().get("logging").get("database_logging"):
-            ora_handler = OracleLogHandler()
-            self.logger.addHandler(ora_handler)
+            self.logger.addHandler(OracleLogHandler())
 
         return self
 

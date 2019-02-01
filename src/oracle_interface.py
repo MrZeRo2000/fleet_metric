@@ -18,13 +18,11 @@ class OracleInterface:
 
     @property
     @inject
-    def configuration(self) -> Configuration:
-        pass
+    def configuration(self) -> Configuration: pass
 
     @property
     @inject
-    def logger(self) -> Logger:
-        pass
+    def logger(self) -> Logger: pass
 
     def __init__(self):
         self.__ou = None
@@ -40,6 +38,7 @@ class OracleInterface:
         return self.__ou
 
 
+@component
 class OracleLoader:
     """
     Oracle loader class
@@ -47,18 +46,15 @@ class OracleLoader:
 
     @property
     @inject
-    def configuration(self) -> Configuration:
-        pass
+    def configuration(self) -> Configuration: pass
 
     @property
     @inject
-    def logger(self) -> Logger:
-        pass
+    def logger(self) -> Logger: pass
 
     @property
     @inject
-    def oracle_interface(self) -> OracleInterface:
-        pass
+    def oracle_interface(self) -> OracleInterface: pass
 
     @log_method
     def load(self):

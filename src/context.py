@@ -1,6 +1,7 @@
 
 import inspect
 
+
 class ComponentFactory:
     __instance = None
     components = {}
@@ -14,7 +15,10 @@ class ComponentFactory:
         return self.components[component.__class__.__name__]
 
     def match_component_by_type(self, component_type: type):
-        result = list(filter(lambda c: type(c) == component_type, self.components.values()))
+        # result = list(filter(lambda c: type(c) == component_type, self.components.values()))
+        while inspect.isfunction(component_type):
+            component_type = component_type.__annotations__['return']
+        result = [c for c in self.components.values() if type(c) == component_type]
         if len(result) > 0:
             return result[0]
 
@@ -63,6 +67,6 @@ def inject(func):
 
 def component(cls):
     def on_call(*args, **kwargs) -> cls:
-        print("component on call:" + str(cls))
+        print("component loaded:" + str(cls))
         return cls(*args, **kwargs)
     return on_call
