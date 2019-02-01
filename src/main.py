@@ -40,7 +40,8 @@ class Main:
         self.logger.setLevel(self.configuration.get().get("logging").get("level"))
 
         if self.configuration.get().get("logging").get("database_logging"):
-            self.logger.addHandler(OracleLogHandler())
+            ora_handler = OracleLogHandler()
+            self.logger.addHandler(ora_handler)
 
         return self
 

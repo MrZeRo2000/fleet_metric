@@ -10,6 +10,6 @@ class AppConfig:
     def execute():
         context = AppContext.get_context()
         context.register_singleton_component(Configuration())
-        context.register_singleton_component(Logger("ts_metrics").logger)
+        context.register_singleton_component(Logger().logger)
         context.register_singleton_component(OracleInterface())
         context.register_singleton_component(OracleLoader())

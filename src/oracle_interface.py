@@ -4,12 +4,13 @@ import pandas as pd
 import logging
 from config import Configuration
 from oracle_utils import OracleUtils
-from context import inject
+from context import inject, component
 from app import AppContext
 from log import log_method
 from logging import Logger
 
 
+@component
 class OracleInterface:
     """
     Common Oracle interface class

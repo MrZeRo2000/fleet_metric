@@ -3,6 +3,7 @@ from functools import wraps
 import datetime
 import logging
 import os
+import context
 
 
 class Formatter(logging.Formatter):
@@ -27,6 +28,7 @@ class Formatter(logging.Formatter):
         return super(Formatter, self).format(record)
 
 
+@context.component
 class Logger:
     LOG_FILE_FORMAT = "log_{0:04d}-{1:02d}-{2:02d}.txt"
     """Log file format"""
@@ -37,7 +39,9 @@ class Logger:
     LOG_FORMAT = "%(asctime)s %(levelname)s %(name)s %(module)s %(message)s"
     """Log format"""
 
-    def __init__(self, name):
+    def __init__(self):
+        name = __file__.split(os.path.sep)[-3]
+
         self.__logger = logging.getLogger(name)
         self.__logger.setLevel(logging.DEBUG)
 
@@ -67,7 +71,7 @@ class Logger:
 
 def log_method(func):
     def wrapper(*args, **kwargs):
-        logger = func.__globals__.get("AppContext").get_context().components.get(Logger.__name__)
+        logger = func.__globals__.get("AppContext").get_context().match_component_by_type(logging.Logger)
 
         func_name = args[0].__class__.__name__ + "." + func.__name__
         module_name = args[0].__class__.__module__.strip("__")

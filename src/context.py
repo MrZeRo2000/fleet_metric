@@ -1,4 +1,6 @@
 
+import inspect
+
 class ComponentFactory:
     __instance = None
     components = {}
@@ -45,10 +47,22 @@ def inject(func):
         for (arg_key, arg_type) in func.__annotations__.items():
             instance_required = arg_key not in kwargs
             if instance_required and arg_key != 'return':
+                while inspect.isfunction(arg_type):
+                    arg_type = arg_type.__annotations__['return']
                 kwargs[arg_key] = ctx.match_component_by_type(arg_type)
                 return func(*args, **kwargs)
 
         return_type = func.__annotations__['return']
+        while inspect.isfunction(return_type):
+            return_type = return_type.__annotations__['return']
+
         return ctx.match_component_by_type(return_type)
 
     return wrapper
+
+
+def component(cls):
+    def on_call(*args, **kwargs) -> cls:
+        print("component on call:" + str(cls))
+        return cls(*args, **kwargs)
+    return on_call
