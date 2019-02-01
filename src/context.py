@@ -6,15 +6,15 @@ class ComponentFactory:
     __instance = None
     components = {}
 
-    def register_singleton_component(self, component):
-        component_id = component.__class__.__name__
+    def register_singleton_component(self, cls_component):
+        component_id = cls_component.__class__.__name__
         if component_id not in self.components:
-            self.components[component_id] = component
+            self.components[component_id] = cls_component
 
-    def get_component(self, component):
-        return self.components[component.__class__.__name__]
+    def get_component(self, cls_component):
+        return self.components[cls_component.__class__.__name__]
 
-    def match_component_by_type(self, component_type: type):
+    def match_component_by_type(self, component_type):
         # result = list(filter(lambda c: type(c) == component_type, self.components.values()))
         while inspect.isfunction(component_type):
             component_type = component_type.__annotations__['return']
@@ -28,6 +28,7 @@ class ComponentFactory:
             ComponentFactory.__instance = ComponentFactory()
 
         return ComponentFactory.__instance
+
 
 """
 def inject(context=None):

@@ -5,7 +5,7 @@ from context import inject
 import sys
 from logging import Logger
 from log import log_method
-from oracle_interface import OracleInterface, OracleLoader
+from oracle_interface import OracleLoader
 from oracle_interface import OracleLogHandler
 
 
@@ -15,14 +15,17 @@ class Main:
         # AppConfig.execute()
         AppContext.initialize_context(__file__)
 
+    # noinspection PyPropertyDefinition
     @property
     @inject
     def configuration(self) -> Configuration: pass
 
+    # noinspection PyPropertyDefinition
     @property
     @inject
     def logger(self) -> Logger: pass
 
+    # noinspection PyPropertyDefinition
     @property
     @inject
     def oracle_loader(self) -> OracleLoader: pass

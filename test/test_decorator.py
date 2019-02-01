@@ -36,6 +36,7 @@ class Configuration:
     def __init__(self):
         print("Create instance of Configuration")
 
+
 @log_decorator
 def decorated_func(x):
     print("Decorated func: x=" + str(x))
@@ -55,8 +56,8 @@ class TestDecoratedClass(TestCase):
 
     def test1(self):
         print("Before configuration instance creation")
-        config = Configuration()
+        Configuration()
         print("After configuration instance creation")
         print("Before configuration instance creation 2")
-        config = Configuration()
+        Configuration()
         print("After configuration instance creation 2")

@@ -1,5 +1,3 @@
-
-from functools import wraps
 from unittest import TestCase
 import inspect
 import importlib
@@ -10,6 +8,7 @@ def component(cls):
     def on_call(*args, **kwargs) -> cls:
         print("component on call")
         return cls(*args, **kwargs)
+
     return on_call
 
 
@@ -36,10 +35,12 @@ class TestInspect(TestCase):
 
     def test_component(self):
         classes = inspect.getmembers(sys.modules[__name__])
+        print(classes)
         component_funcs = [x[1] for x in inspect.getmembers(sys.modules[__name__])
-                      if inspect.isfunction(x[1])
-                      and 'return' in x[1].__annotations__
-                      and x[1].__qualname__.split(".")[0] == 'component']
+                           if inspect.isfunction(x[1])
+                           and 'return' in x[1].__annotations__
+                           and x[1].__qualname__.split(".")[0] == 'component'
+                           ]
         print(component_funcs)
         for cf in component_funcs:
             cls = cf.__annotations__['return']

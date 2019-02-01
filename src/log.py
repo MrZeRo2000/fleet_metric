@@ -3,6 +3,7 @@ import datetime
 import logging
 import os
 from context import component
+from app import AppContext
 
 
 class Formatter(logging.Formatter):

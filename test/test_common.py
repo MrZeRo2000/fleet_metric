@@ -9,10 +9,12 @@ import logging
 
 class ContextTestCase(TestCase):
 
+    # noinspection PyPropertyDefinition
     @property
     @inject
     def configuration(self) -> Configuration: pass
 
+    # noinspection PyPropertyDefinition
     @property
     @inject
     def logger(self) -> logging.Logger: pass

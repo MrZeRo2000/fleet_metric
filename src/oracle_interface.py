@@ -4,7 +4,8 @@ import pandas as pd
 import logging
 from config import Configuration
 from oracle_utils import OracleUtils
-from context import inject, component
+from context import inject
+from context import component
 from app import AppContext
 from log import log_method
 from logging import Logger
@@ -16,10 +17,12 @@ class OracleInterface:
     Common Oracle interface class
     """
 
+    # noinspection PyPropertyDefinition
     @property
     @inject
     def configuration(self) -> Configuration: pass
 
+    # noinspection PyPropertyDefinition
     @property
     @inject
     def logger(self) -> Logger: pass
@@ -44,14 +47,17 @@ class OracleLoader:
     Oracle loader class
     """
 
+    # noinspection PyPropertyDefinition
     @property
     @inject
     def configuration(self) -> Configuration: pass
 
+    # noinspection PyPropertyDefinition
     @property
     @inject
     def logger(self) -> Logger: pass
 
+    # noinspection PyPropertyDefinition
     @property
     @inject
     def oracle_interface(self) -> OracleInterface: pass
@@ -95,7 +101,7 @@ class OracleLoader:
         self.ou.execute_statement(stmt)
         self.ou.commit()
 
-        stmt = "INSERT INTO dn_ml_customer_out (customer_no, trips_predict, trips,  trips_proba) VALUES (:1, :2, :3, :4)"
+        stmt = "INSERT INTO dn_ml_customer_ou (customer_no, trips_predict, trips,  trips_proba) VALUES (:1, :2, :3, :4)"
 
         df = pd.read_csv(file_name, sep=Configuration.CSV_DELIMITER)
 
