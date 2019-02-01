@@ -47,7 +47,8 @@ def inject(func):
         if func.__annotations__ is None:
             return func(args, kwargs)
 
-        ctx = func.__globals__.get('AppContext').get_context().get_instance()
+        from app import AppContext
+        ctx = AppContext.get_context()
 
         for (arg_key, arg_type) in func.__annotations__.items():
             instance_required = arg_key not in kwargs

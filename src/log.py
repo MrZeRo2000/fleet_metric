@@ -3,7 +3,6 @@ import datetime
 import logging
 import os
 from context import component
-from app import AppContext
 
 
 class Formatter(logging.Formatter):
@@ -73,7 +72,9 @@ class Logger:
 
 def log_method(func):
     def wrapper(*args, **kwargs):
-        logger = func.__globals__.get("AppContext").get_context().match_component_by_type(logging.Logger)
+        from app import AppContext
+        ctx = AppContext.get_context()
+        logger = ctx.match_component_by_type(logging.Logger)
 
         func_name = args[0].__class__.__name__ + "." + func.__name__
         module_name = args[0].__class__.__module__.strip("__")

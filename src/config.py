@@ -2,7 +2,6 @@
 import os
 import json
 from context import component
-from app import AppContext
 
 
 @component
