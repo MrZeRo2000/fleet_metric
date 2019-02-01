@@ -1,24 +1,24 @@
 
 from src.context import inject
 from app import AppContext
-from app_config import AppConfig
 from unittest import TestCase
 from config import Configuration
-from log import Logger
+import log
+import logging
 
 
 class ContextTestCase(TestCase):
 
     @property
     @inject
-    def configuration(self) -> Configuration:
-        pass
+    def configuration(self) -> Configuration: pass
 
     @property
     @inject
-    def logger(self) -> Logger:
-        pass
+    def logger(self) -> logging.Logger: pass
 
     def setUp(self):
-        AppConfig.execute()
+        context = AppContext.get_context()
+        context.register_singleton_component(Configuration())
+        context.register_singleton_component(log.Logger().logger)
 

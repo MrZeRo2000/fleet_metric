@@ -5,7 +5,6 @@ from context import inject
 import sys
 from logging import Logger
 from log import log_method
-from app_config import AppConfig
 from oracle_interface import OracleInterface, OracleLoader
 from oracle_interface import OracleLogHandler
 
@@ -13,7 +12,8 @@ from oracle_interface import OracleLogHandler
 class Main:
     def __init__(self, args):
         self.__args = args
-        AppConfig.execute()
+        # AppConfig.execute()
+        AppContext.initialize_context(__file__)
 
     @property
     @inject
@@ -53,5 +53,6 @@ class Main:
             exit(1)
 
 
-Main(sys.argv).configure().execute()
+if __name__ == "__main__":
+    Main(sys.argv).configure().execute()
 

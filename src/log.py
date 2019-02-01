@@ -1,9 +1,8 @@
 
-from functools import wraps
 import datetime
 import logging
 import os
-import context
+from context import component
 
 
 class Formatter(logging.Formatter):
@@ -28,7 +27,7 @@ class Formatter(logging.Formatter):
         return super(Formatter, self).format(record)
 
 
-@context.component
+@component
 class Logger:
     LOG_FILE_FORMAT = "log_{0:04d}-{1:02d}-{2:02d}.txt"
     """Log file format"""
@@ -38,6 +37,8 @@ class Logger:
 
     LOG_FORMAT = "%(asctime)s %(levelname)s %(name)s %(module)s %(message)s"
     """Log format"""
+
+    COMPONENT_PROPERTY_NAME = "logger"
 
     def __init__(self):
         name = __file__.split(os.path.sep)[-3]
