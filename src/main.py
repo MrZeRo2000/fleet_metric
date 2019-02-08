@@ -7,6 +7,7 @@ from logging import Logger
 from log import log_method
 from oracle_interface import OracleLoader
 from oracle_interface import OracleLogHandler
+from dts import DataProcessorService
 
 
 class Main:
@@ -30,7 +31,11 @@ class Main:
     @inject
     def oracle_loader(self) -> OracleLoader: pass
 
-    @log_method
+    # noinspection PyPropertyDefinition
+    @property
+    @inject
+    def data_processor_service(self) -> DataProcessorService: pass
+
     def configure(self):
         if len(self.__args) < 2:
             raise Exception("Configuration file name should be provided as first argument")
@@ -49,6 +54,11 @@ class Main:
         try:
             if self.configuration.get().get("tasks").get("database_load"):
                 self.oracle_loader.load()
+
+            df = self.data_processor_service.process_input_data()
+            self.data_processor_service.save_input_data(df)
+
+            df_pred = df["VIE"]
 
             return self
         except Exception as e:

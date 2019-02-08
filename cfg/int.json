@@ -8,7 +8,7 @@
     "calc_stmt":"",
     "load_stmt":[
       "SELECT /*+ PARALLEL(4) */",
-      "  TRUNC(fact.end_date) AS day_id,",
+      "  TO_CHAR(TRUNC(fact.end_date), 'dd.mm.yyyy') AS day_id,",
       "  f.fleet_id AS category_id,",
       "  COALESCE(SUM(fact.income_netto), 0) AS income_netto,",
       "  COALESCE(SUM(fact.net_amount_eur), 0) AS income_netto_eur,",
@@ -29,10 +29,13 @@
   },
   "data_files": {
     "data_file_name":"../data/ts_metrics.txt",
+    "data_file_cat_name":"../data/ts_metrics_{cat}.txt",
     "result_file_name":"../data/ts_metrics_out.txt"
   },
   "model": {
-    "metric_name":"INCOME_NETTO"
+    "ts_field":"DAY_ID",
+    "category_field":"CATEGORY_ID",
+    "metric_name_field":"INCOME_NETTO"
   },
   "tasks": {
     "database_load":true,
