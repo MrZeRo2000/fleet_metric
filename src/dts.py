@@ -28,7 +28,7 @@ class DataProcessorService:
         return pd.read_csv(data_file_name, self.configuration.CSV_DELIMITER)
 
     @log_method
-    def process_input_data(self):
+    def split_input_data(self):
         df = self.read_input_data()
         ts_field = self.configuration.get().get("model").get("ts_field")
         category_field = self.configuration.get().get("model").get("category_field")
@@ -59,3 +59,7 @@ class DataProcessorService:
                          index=True,
                          quoting=csv.QUOTE_NONNUMERIC
                          )
+
+    @log_method
+    def save_split_data(self):
+        self.save_input_data(self.split_input_data())

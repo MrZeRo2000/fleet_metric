@@ -35,7 +35,56 @@
   "model": {
     "ts_field":"DAY_ID",
     "category_field":"CATEGORY_ID",
-    "metric_name_field":"INCOME_NETTO"
+    "metric_name_field":"INCOME_NETTO",
+    "metric_threshold":"100",
+    "sarimax_parameters": {
+      "BER": {
+        "order":[2, 1, 1],
+        "seasonal_order":[3, 0, 1, 7]
+      },
+      "VIE": {
+        "order":[14, 0, 1],
+        "seasonal_order":[2, 1, 1, 7]
+      },
+      "BRU": {
+        "order":[20, 1, 2],
+        "seasonal_order":[3, 0, 1, 7]
+      },
+      "CGN": {
+        "order":[20, 1, 1],
+        "seasonal_order":[3, 1, 1, 7]
+      },
+      "CPH": {
+        "order":[20, 1, 1],
+        "seasonal_order":[3, 1, 1, 7]
+      },
+      "DUS": {
+        "order":[14, 0, 1],
+        "seasonal_order":[2, 1, 1, 7]
+      },
+      "HAM": {
+        "order":[20, 1, 1],
+        "seasonal_order":[3, 1, 1, 7]
+      },
+      "HEL": {
+        "order":[20, 1, 1],
+        "seasonal_order":[3, 1, 1, 7]
+      },
+      "LIS": {
+        "order":[20, 1, 1],
+        "seasonal_order":[3, 1, 1, 7]
+      },
+      "LON": {
+        "order":[20, 1, 3]
+      },
+      "MIL": {
+        "order":[20, 1, 1],
+        "seasonal_order":[3, 1, 1, 7]
+      },
+      "MUC": {
+        "order":[16, 1, 4]
+      }
+    }
   },
   "tasks": {
     "database_load":true,

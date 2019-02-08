@@ -16,8 +16,9 @@ class TestDataAnalysis(ContextTestCase):
     def setUp(self):
         ContextTestCase.setUp(self)
         self.configuration.load("../test/cfg/test.json")
+        self.category_id = "VIE"
 
-        data_file_name = self.configuration.get().get("data_files").get("data_file_cat_name").replace("{cat}", "LIS")
+        data_file_name = self.configuration.get().get("data_files").get("data_file_cat_name").replace("{cat}", self.category_id)
         ts_field = self.configuration.get().get("model").get("ts_field")
         self.df = pd.read_csv(data_file_name, self.configuration.CSV_DELIMITER)
         self.df.index = pd.to_datetime(self.df[ts_field], format="%Y-%m-%d")
@@ -28,8 +29,9 @@ class TestDataAnalysis(ContextTestCase):
     def test1(self):
         df = self.df
         metric_name_field = self.configuration.get().get("model").get("metric_name_field")
+        metric_threshold = int(self.configuration.get().get("model").get("metric_threshold"))
         # to include working data
-        df = df[df[metric_name_field] > 100]
+        df = df[df[metric_name_field] > metric_threshold]
 
         # resampled to monthly
         df_m = df.resample('M', axis=0, label='right').mean()
@@ -77,14 +79,16 @@ class TestDataAnalysis(ContextTestCase):
         # MIL:mod = SARIMAX(df_train, order=(20, 1, 1), seasonal_order=(3, 1, 1, 7)) !! BAD RESULT: trend in data
         # MUC:mod = SARIMAX(df_train, order=(16, 1, 4))
 
-        mod = SARIMAX(df_train, order=(2, 1, 1), seasonal_order=(3, 0, 1, 7))
-        res = mod.fit()
-        data_pred = res.predict(start=df_test.index.min(), end=df_test.index.max()).values * (1 + month_correction)
+        mod = SARIMAX(df_train, **self.configuration.get().get("model").get("sarimax_parameters")[self.category_id])
+        data_pred = mod.fit().predict(
+            start=df_train.index.max() + pd.DateOffset(days=1),
+            end=df_train.index.max() + pd.DateOffset(days=35)
+        ) * (1 + month_correction)
 
         data_result = pd.DataFrame(data_pred)
         data_result.columns = ["forecast"]
         data_result["fact"] = df_test[metric_name_field].values
-        data_result.index = df_test.index
+#        data_result.index = df_test.index
 
         # restrict with current month only
         data_result = data_result[df_test.index.max().replace(day=1):df_test.index.max()]

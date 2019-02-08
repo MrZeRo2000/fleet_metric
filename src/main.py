@@ -54,11 +54,7 @@ class Main:
         try:
             if self.configuration.get().get("tasks").get("database_load"):
                 self.oracle_loader.load()
-
-            df = self.data_processor_service.process_input_data()
-            self.data_processor_service.save_input_data(df)
-
-            df_pred = df["VIE"]
+                self.data_processor_service.save_split_data()
 
             return self
         except Exception as e:
