@@ -37,6 +37,7 @@
     "category_field":"CATEGORY_ID",
     "metric_name_field":"INCOME_NETTO",
     "metric_threshold":"100",
+    "metric_forecast_field":"FORECAST",
     "sarimax_parameters": {
       "BER": {
         "order":[2, 1, 1],
@@ -88,6 +89,7 @@
   },
   "tasks": {
     "database_load":true,
-    "database_upload":false
+    "database_upload":false,
+    "categories":["VIE"]
   }
 }

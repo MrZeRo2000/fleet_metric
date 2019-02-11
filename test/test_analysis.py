@@ -100,8 +100,8 @@ class TestDataAnalysis(ContextTestCase):
         result_fact = data_result["fact"].sum()
         result_prev = df[first_day_prev:last_day_prev][metric_name_field].sum()
 
-        print("Fact: {0:.2f}".format(result_fact))
         print("Forecast: {0:.2f}".format(result_forecast))
+        print("Fact: {0:.2f}".format(result_fact))
         print("Previous: {0:.2f}".format(result_prev))
         print("Month correction: {0:.2f}%".format(month_correction*100))
         print("Prediction error: {0:.2f}%".format(abs(result_fact - result_forecast) / result_fact * 100))
