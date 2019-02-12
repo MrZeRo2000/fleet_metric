@@ -8,6 +8,8 @@ from log import log_method
 from oracle_interface import OracleLoader
 from oracle_interface import OracleLogHandler
 from dts import DataProcessorService
+from calc import CalculationService
+from aps import ARIMAPredictionService
 
 
 class Main:
@@ -36,6 +38,11 @@ class Main:
     @inject
     def data_processor_service(self) -> DataProcessorService: pass
 
+    # noinspection PyPropertyDefinition
+    @property
+    @inject
+    def calculation_service(self) -> CalculationService: pass
+
     def configure(self):
         if len(self.__args) < 2:
             raise Exception("Configuration file name should be provided as first argument")
@@ -55,6 +62,13 @@ class Main:
             if self.configuration.get().get("tasks").get("database_load"):
                 self.oracle_loader.load()
                 self.data_processor_service.save_split_data()
+
+            if self.configuration.get().get("tasks").get("calculation"):
+                self.calculation_service.predictor_service = ARIMAPredictionService()
+                self.calculation_service.process_tasks()
+
+            if self.configuration.get().get("tasks").get("database_upload"):
+                self.oracle_loader.upload_result()
 
             return self
         except Exception as e:

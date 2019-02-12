@@ -29,8 +29,9 @@
   },
   "data_files": {
     "data_file_name":"../data/ts_metrics.txt",
-    "data_file_cat_name":"../data/ts_metrics_{cat}.txt",
-    "result_file_name":"../data/ts_metrics_out.txt"
+    "data_file_cat_name":"../data/ts_metrics_{metric}_{cat}.txt",
+    "test_result_file_cat_name":"../data/ts_metrics_test_out_{metric}_{cat}.txt",
+    "result_file_cat_name":"../data/ts_metrics_out_{metric}_{cat}.txt"
   },
   "model": {
     "ts_field":"DAY_ID",
@@ -38,6 +39,8 @@
     "metric_name_field":"INCOME_NETTO",
     "metric_threshold":"100",
     "metric_forecast_field":"FORECAST",
+    "metric_fact_field":"FACT",
+    "metric_name_table_field":"METRIC_NAME",
     "sarimax_parameters": {
       "BER": {
         "order":[2, 1, 1],
@@ -88,8 +91,10 @@
     }
   },
   "tasks": {
-    "database_load":true,
-    "database_upload":false,
+    "database_load":false,
+    "database_upload":true,
+    "calculation":false,
+    "calculation_engine":"ARIMA",
     "categories":["VIE"]
   }
 }

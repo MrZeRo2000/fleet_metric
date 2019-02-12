@@ -8,6 +8,7 @@ from context import inject
 from context import component
 from log import log_method
 from logging import Logger
+from dts import DataProcessorService
 
 
 @component
@@ -61,6 +62,11 @@ class OracleLoader:
     @inject
     def oracle_interface(self) -> OracleInterface: pass
 
+    # noinspection PyPropertyDefinition
+    @property
+    @inject
+    def data_processor_service(self) -> DataProcessorService: pass
+
     @log_method
     def load(self):
         """
@@ -78,34 +84,52 @@ class OracleLoader:
 
         self.oracle_interface.get().load_to_csv(load_stmt_str, full_file_name, self.configuration.CSV_DELIMITER)
 
-    def load_train(self):
-        """
-        Loads train data
-        :return: None
-        """
-
-        file_name = self.config.get_train_data_file_path()
-        self.ou.load_to_csv("SELECT * FROM dn_ml_customer_train_view", file_name, Configuration.CSV_DELIMITER)
-
+    @log_method
     def upload_result(self):
         """
         Uploads result data
         :return: None
         """
 
-        file_name = self.config.get_result_data_file()
+        metric_name_field = self.configuration.get().get("model").get("metric_name_field")
+        metric_name_table_field  = self.configuration.get().get("model").get("metric_name_table_field")
+        category_field = self.configuration.get().get("model").get("category_field")
+        categories = self.configuration.get().get("tasks").get("categories")
+        ou = self.oracle_interface.get()
 
-        stmt = "DELETE FROM dn_ml_customer_out"
+        stmt = "DELETE FROM dn_ml_metric_test_out"
+        ou.execute_statement(stmt)
+        ou.commit()
 
-        self.ou.execute_statement(stmt)
-        self.ou.commit()
+        stmt = "DELETE FROM dn_ml_metric_out"
+        ou.execute_statement(stmt)
+        ou.commit()
 
-        stmt = "INSERT INTO dn_ml_customer_ou (customer_no, trips_predict, trips,  trips_proba) VALUES (:1, :2, :3, :4)"
+        stmt = "ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD'"
+        ou.execute_statement(stmt)
 
-        df = pd.read_csv(file_name, sep=Configuration.CSV_DELIMITER)
+        for c in categories:
+            self.logger.debug("Processing result " + c)
+            result_file_name = self.data_processor_service.get_result_file_name(c)
+            df_r = pd.read_csv(result_file_name, sep=self.configuration.CSV_DELIMITER)
+            df_r[category_field] = c
+            df_r[metric_name_table_field] = metric_name_field
 
-        self.ou.bulk_insert(stmt, df)
-        self.ou.commit()
+            stmt = "INSERT INTO dn_ml_metric_out (day_id, forecast, category_id, metric_name) VALUES (:1, :2, :3, :4)"
+            ou.bulk_insert(stmt, df_r)
+            ou.commit()
+            self.logger.debug("Processed result " + c)
+
+            self.logger.debug("Processing test result " + c)
+            test_result_file_name = self.data_processor_service.get_test_result_file_name(c)
+            df_t = pd.read_csv(test_result_file_name, sep=self.configuration.CSV_DELIMITER)
+            df_t[category_field] = c
+            df_t[metric_name_table_field] = metric_name_field
+
+            stmt = "INSERT INTO dn_ml_metric_test_out (day_id, forecast, fact, category_id, metric_name) VALUES (:1, :2, :3, :4, :5)"
+            ou.bulk_insert(stmt, df_t)
+            ou.commit()
+            self.logger.debug("Processed test result " + c)
 
 
 class OracleLogHandler(logging.Handler):

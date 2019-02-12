@@ -48,8 +48,19 @@ class DataProcessorService:
 
         return dfr
 
+    def get_file_name(self, file_param_name, category_id):
+        metric_name_field = self.configuration.get().get("model").get("metric_name_field")
+        return self.configuration.get().get("data_files").get(file_param_name)\
+            .replace("{cat}", category_id).replace("{metric}", metric_name_field)
+
     def get_data_file_name(self, category_id):
-        return self.configuration.get().get("data_files").get("data_file_cat_name").replace("{cat}", category_id)
+        return self.get_file_name("data_file_cat_name", category_id)
+
+    def get_result_file_name(self, category_id):
+        return self.get_file_name("result_file_cat_name", category_id)
+
+    def get_test_result_file_name(self, category_id):
+        return self.get_file_name("test_result_file_cat_name", category_id)
 
     @log_method
     def save_input_data(self, df):
@@ -83,3 +94,20 @@ class DataProcessorService:
         metric_threshold = int(self.configuration.get().get("model").get("metric_threshold"))
 
         return df[df[metric_name_field] > metric_threshold]
+
+    def save_result_data(self, category_id, df):
+        metric_fact_field = self.configuration.get().get("model").get("metric_fact_field")
+        if metric_fact_field in df.columns:
+            result_file_name = self.get_test_result_file_name(category_id)
+        else:
+            result_file_name = self.get_result_file_name(category_id)
+
+        ts_field = self.configuration.get().get("model").get("ts_field")
+        df.index.name = ts_field
+        df.to_csv(result_file_name,
+                  self.configuration.CSV_DELIMITER,
+                  mode='w',
+                  header=True,
+                  index=True,
+                  quoting=csv.QUOTE_NONNUMERIC
+                  )

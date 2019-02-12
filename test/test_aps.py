@@ -8,7 +8,7 @@ from dts import DataProcessorService
 import matplotlib.pyplot as plt
 from statsmodels.graphics.tsaplots import plot_acf
 from statsmodels.graphics.tsaplots import plot_pacf
-import pandas
+import pandas as pd
 
 
 class TestDataAnalysis(ContextTestCase):
@@ -34,7 +34,7 @@ class TestDataAnalysis(ContextTestCase):
 
         self.show_plots = True
 
-    @unittest.skip
+#    @unittest.skip
     def testAPS(self):
         metric_name_field = self.configuration.get().get("model").get("metric_name_field")
         df = self.data_processor_service.load_category_data("VIE")
@@ -42,8 +42,13 @@ class TestDataAnalysis(ContextTestCase):
         predict_params = self.configuration.get().get("model").get("sarimax_parameters")["VIE"]
 
         aps = self.arima_prediction_service
+        aps.set_up()
         result_forecast, result_fact, result_prev = aps.calc_test(df, predict_params)
-        data_result, df_m_p_ly, df_m_p_py, month_correction = aps.get_data_result()
+        data_result, df_m_p, month_correction = aps.get_data_result()
+
+        df_m_p_ly = df_m_p[df_m_p.index.max() - pd.DateOffset(years=1) + pd.DateOffset(months=1):df_m_p.index.max()]
+        df_m_p_py = df_m_p.shift(axis=0, periods=12)[df_m_p.index.max() - pd.DateOffset(years=1) + pd.DateOffset(months=1):df_m_p.index.max()]
+
 
         print("Forecast: {0:.2f}".format(result_forecast))
         print("Fact: {0:.2f}".format(result_fact))
@@ -71,15 +76,17 @@ class TestDataAnalysis(ContextTestCase):
             plt.title("Test results")
             plt.show()
 
+#    @unittest.skip
     def testAPSPredict(self):
         df = self.data_processor_service.load_category_data("VIE")
         df = self.data_processor_service.cleanup_data(df)
         predict_params = self.configuration.get().get("model").get("sarimax_parameters")["VIE"]
 
         aps = self.arima_prediction_service
+        aps.set_up()
         result_forecast, result_prev = aps.calc_predict(df, predict_params)
 
-        data_result, df_m_p_ly, df_m_p_py, month_correction = aps.get_data_result()
+        data_result, df_m_p, month_correction = aps.get_data_result()
 
         print("Forecast: {0:.2f}".format(result_forecast))
         print("Previous: {0:.2f}".format(result_prev))
