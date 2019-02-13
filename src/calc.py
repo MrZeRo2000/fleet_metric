@@ -2,7 +2,7 @@
 from context import component, inject
 from config import Configuration
 from logging import Logger
-from predict import PredictorService
+from ps import PredictorService
 from dts import DataProcessorService
 from log import log_method
 

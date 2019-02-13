@@ -97,12 +97,14 @@ class OracleLoader:
         categories = self.configuration.get().get("tasks").get("categories")
         ou = self.oracle_interface.get()
 
-        stmt = "DELETE FROM dn_ml_metric_test_out"
-        ou.execute_statement(stmt)
+        metric_params = {"metric_name": metric_name_field}
+
+        stmt = "DELETE FROM dn_ml_metric_test_out WHERE metric_name = :metric_name"
+        ou.execute_statement(stmt, metric_params)
         ou.commit()
 
-        stmt = "DELETE FROM dn_ml_metric_out"
-        ou.execute_statement(stmt)
+        stmt = "DELETE FROM dn_ml_metric_out WHERE metric_name = :metric_name"
+        ou.execute_statement(stmt, metric_params)
         ou.commit()
 
         stmt = "ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD'"

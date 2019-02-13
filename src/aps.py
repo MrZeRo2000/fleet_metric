@@ -5,7 +5,7 @@ from config import Configuration
 from logging import Logger
 import pandas as pd
 from statsmodels.tsa.statespace.sarimax import SARIMAX
-from predict import PredictorService
+from ps import PredictorService
 
 
 @component
