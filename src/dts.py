@@ -111,3 +111,48 @@ class DataProcessorService:
                   index=True,
                   quoting=csv.QUOTE_NONNUMERIC
                   )
+
+    def get_shifted_data(self, df, num_days=40, num_weeks=2, num_months=12):
+        metric_name_field = self.configuration.get().get("model").get("metric_name_field")
+        df = df.copy()
+
+        # added daily shifted data
+
+        for i in range(1, num_days + 1):
+            df["fd" + str(i)] = df.shift(i)[metric_name_field]
+
+        # added weekly shifted data
+        for i in range(1, num_weeks + 1):
+            df["fw" + str(i)] = df.shift(i * 7)[metric_name_field]
+
+        # drop null values
+        df = df.dropna()
+
+        # add weekdays
+        df_dow = pd.get_dummies(df.index.dayofweek, prefix="weekday", drop_first=True)
+        df_dow.index = df.index
+
+        df_output = pd.concat([df_dow, df], axis=1)
+
+        # add months
+        df_mon = pd.get_dummies(df.index.month, prefix="month", drop_first=True)
+        df_mon.index = df.index
+
+        df_output = pd.concat([df_mon, df], axis=1)
+
+
+        # columns and labels
+        features = [s for s in df_output.columns if s != metric_name_field]
+        labels = [metric_name_field]
+
+        return df_output, features, labels
+
+    @staticmethod
+    def get_train_test_data(df):
+        end_date = df.index.max()
+        start_date = end_date.replace(day=1)
+
+        df_train = df[:start_date - pd.DateOffset(days=1)]
+        df_test = df[start_date:end_date]
+
+        return df_train, df_test
