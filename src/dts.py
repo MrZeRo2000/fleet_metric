@@ -112,18 +112,17 @@ class DataProcessorService:
                   quoting=csv.QUOTE_NONNUMERIC
                   )
 
-    def get_shifted_data(self, df, num_days=40, num_weeks=2, num_months=12):
+    def get_shifted_data(self, df, num_days=40, num_weeks=2):
         metric_name_field = self.configuration.get().get("model").get("metric_name_field")
-        df = df.copy()
 
         # added daily shifted data
 
         for i in range(1, num_days + 1):
-            df["fd" + str(i)] = df.shift(i)[metric_name_field]
+            df["fd" + str(i)] = df.copy().shift(i)[metric_name_field]
 
         # added weekly shifted data
         for i in range(1, num_weeks + 1):
-            df["fw" + str(i)] = df.shift(i * 7)[metric_name_field]
+            df["fw" + str(i)] = df.copy().shift(i * 7)[metric_name_field]
 
         # drop null values
         df = df.dropna()
@@ -132,20 +131,43 @@ class DataProcessorService:
         df_dow = pd.get_dummies(df.index.dayofweek, prefix="weekday", drop_first=True)
         df_dow.index = df.index
 
-        df_output = pd.concat([df_dow, df], axis=1)
+#        df_output = pd.concat([df_dow, df], axis=1)
 
         # add months
         df_mon = pd.get_dummies(df.index.month, prefix="month", drop_first=True)
         df_mon.index = df.index
 
-        df_output = pd.concat([df_mon, df], axis=1)
-
+        df_output = pd.concat([df_mon, pd.concat([df_dow, df], axis=1)], axis=1)
 
         # columns and labels
         features = [s for s in df_output.columns if s != metric_name_field]
         labels = [metric_name_field]
 
         return df_output, features, labels
+
+    def get_pred_data(self, x_train, y_train, dt, num_days=40, num_weeks=2):
+        metric_name_field = self.configuration.get().get("model").get("metric_name_field")
+
+        x_pred = x_train[-1:].copy()
+        x_pred.index += pd.DateOffset(days=1)
+
+        for i in range(2, 13):
+            if i == dt.month:
+                v = 1
+            else:
+                v = 0
+            x_pred["month_" + str(i)] = v
+
+        for i in range(1, 7):
+            x_pred["weekday_" + str(i)] = x_train[-7:-6]["weekday_" + str(i)][0]
+
+        for i in range(1, num_days + 1):
+            x_pred["fd" + str(i)] = y_train[-i:][metric_name_field][0]
+
+        for i in range(1, num_weeks + 1):
+            x_pred["fw" + str(i)] = y_train[-i * 7:][metric_name_field][-1:][0]
+
+        return x_pred
 
     @staticmethod
     def get_train_test_data(df):

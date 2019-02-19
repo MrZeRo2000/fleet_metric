@@ -9,6 +9,7 @@ from dts import DataProcessorService
 from app import AppContext
 from context import inject
 import xgboost
+import numpy as np
 
 
 class TestSupervised(ContextTestCase):
@@ -36,7 +37,7 @@ class TestSupervised(ContextTestCase):
 
     def test1(self):
         df_train, df_test = self.data_processor_service.get_train_test_data(self.df)
-        df_shifted, features, labels = self.data_processor_service.get_shifted_data(df_train, 35, 5, 12)
+        df_shifted, features, labels = self.data_processor_service.get_shifted_data(df_train, 5, 2)
 
         XGBOOST_PARAM_ESTIMATORS = 10000
         XGBOOST_PARAM_DEPTH = 3
@@ -50,7 +51,34 @@ class TestSupervised(ContextTestCase):
 
         y_test = df_test[labels]
 
-        pass
+        start_date = x_train.index.max() + pd.DateOffset(days=1)
+        y_pred = np.empty((0,))
+
+        #for dn in range(0, start_date.days_in_month):
+        for dn in range(0, 3):
+            d = start_date + pd.DateOffset(days=dn)
+
+            x_pred = self.data_processor_service.get_pred_data(x_train, y_train, d, 5, 2)
+
+            predictor.fit(x_train, y_train.values.ravel())
+
+            y_pred = predictor.predict(x_pred)
+
+            x_train = x_train.append(x_pred)
+
+            y_train_new = y_train[-1:].copy()
+            y_train_new.iloc[0][0] = y_pred.ravel()
+            y_train_new.index += pd.DateOffset(days=1)
+
+            y_train = y_train.append(y_train_new)
+
+
+    @skip
+    def test_pred_df(self):
+        dt = pd.to_datetime('01.02.2019', format='%d.%m.%Y')
+        df = pd.DataFrame(index=[dt])
+
+
 
     @skip
     def test_train_test(self):
