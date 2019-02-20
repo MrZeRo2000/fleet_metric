@@ -87,6 +87,13 @@
       "MUC": {
         "order":[16, 1, 4]
       }
+    },
+    "supervised_parameters": {
+      "n_estimators":5000,
+      "max_depth":4,
+      "learning_rate":0.1,
+      "num_days":35,
+      "num_weeks":5
     }
   },
   "tasks": {

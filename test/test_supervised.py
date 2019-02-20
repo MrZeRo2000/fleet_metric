@@ -10,6 +10,7 @@ from app import AppContext
 from context import inject
 import xgboost
 import numpy as np
+from sps import SupervisedPredictionService
 
 
 class TestSupervised(ContextTestCase):
@@ -19,10 +20,16 @@ class TestSupervised(ContextTestCase):
     @inject
     def data_processor_service(self) -> DataProcessorService: pass
 
+    # noinspection PyPropertyDefinition
+    @property
+    @inject
+    def supervised_prediction_service(self) -> SupervisedPredictionService: pass
+
     def setUp(self):
         ContextTestCase.setUp(self)
         context = AppContext.get_context()
         context.register_singleton_component(DataProcessorService())
+        context.register_singleton_component(SupervisedPredictionService())
 
         self.configuration.load("../test/cfg/test.json")
         self.category_id = "VIE"
@@ -35,6 +42,7 @@ class TestSupervised(ContextTestCase):
 
         self.show_plots = True
 
+    @skip
     def test1(self):
         df_train, df_test = self.data_processor_service.get_train_test_data(self.df)
         df_shifted, features, labels = self.data_processor_service.get_shifted_data(df_train, 5, 2)
@@ -78,12 +86,74 @@ class TestSupervised(ContextTestCase):
         dt = pd.to_datetime('01.02.2019', format='%d.%m.%Y')
         df = pd.DataFrame(index=[dt])
 
-
-
     @skip
     def test_train_test(self):
         df_train, df_test = self.data_processor_service.get_train_test_data(self.df)
 
         self.assertEqual(len(self.df), len(df_train) + len(df_test))
 
+    @skip
+    def testSPS(self):
+        metric_name_field = self.configuration.get().get("model").get("metric_name_field")
+        df = self.data_processor_service.load_category_data("VIE")
+        df = self.data_processor_service.cleanup_data(df)
+        predict_params = self.configuration.get().get("model").get("supervised_parameters")
 
+        sps = self.supervised_prediction_service
+        sps.set_up()
+        result_forecast, result_fact, result_prev = sps.calc_test(df, predict_params)
+        data_result = sps.get_data_result()
+
+        print("Forecast: {0:.2f}".format(result_forecast))
+        print("Fact: {0:.2f}".format(result_fact))
+        print("Previous: {0:.2f}".format(result_prev))
+        print("Prediction error: {0:.2f}%".format(abs(result_fact - result_forecast) / result_fact * 100))
+
+        if self.show_plots:
+            plt.plot(df)
+            plt.show()
+
+            data_result.plot()
+            plt.title("Test results")
+            plt.show()
+
+    def testMonthly(self):
+        metric_name_field = self.configuration.get().get("model").get("metric_name_field")
+        df = self.data_processor_service.load_category_data("VIE")
+        df = self.data_processor_service.cleanup_data(df)
+        df_m = df.resample('M', axis=0, label='right').mean()
+
+        df_m_p = df_m.pct_change().dropna()
+        df_m_p.index = df_m_p.index.map(lambda x: datetime.datetime(x.year, x.month, 1))
+
+        for i in range(1, 13):
+            df_m_p["fm" + str(i)] = df_m_p.copy().shift(i)[metric_name_field]
+
+        df_m_p = df_m_p.dropna()
+
+        df_train = df_m_p[:-1]
+        df_test = df_m_p[-1:]
+
+        features = [s for s in df_m_p.columns if s != metric_name_field]
+        labels = [metric_name_field]
+
+        x_train = df_train[features]
+        y_train = df_train[labels]
+
+        x_test = df_test[features]
+        y_test = df_test[labels]
+
+        x_pred = df_train[-1:].copy().shift(1, axis=1)[features]
+
+        XGBOOST_PARAM_ESTIMATORS = 10000
+        XGBOOST_PARAM_DEPTH = 3
+        XGBOOST_PARAM_LEARNING_RATE = 0.1
+
+        predictor = xgboost.XGBRegressor(n_estimators=XGBOOST_PARAM_ESTIMATORS, max_depth=XGBOOST_PARAM_DEPTH,
+                                         learning_rate=XGBOOST_PARAM_LEARNING_RATE)
+
+        predictor.fit(x_train, y_train.values.ravel())
+
+        y_pred = predictor.predict(x_pred)
+
+        pass
