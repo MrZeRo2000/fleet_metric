@@ -93,43 +93,13 @@ class SupervisedPredictionService(PredictorService):
         return x_pred
 
     def calc_test(self, df, predict_params):
-        num_days = predict_params["num_days"]
-        num_weeks = predict_params["num_weeks"]
-
         df_train, df_test = self.data_processor_service.get_train_test_data(df)
-        df_shifted, features, labels = self.get_shifted_data(
-            df_train,
-            num_days,
-            num_weeks
-        )
 
-        predictor = xgboost.XGBRegressor(**predict_params)
+        self.__data_result = self.predict(df_train, predict_params)
 
-        x_train = df_shifted[features]
-        y_train = df_shifted[labels]
+        start_date = self.__data_result.index.min()
+        end_date = self.__data_result.index.max()
 
-        start_date = x_train.index.max() + pd.DateOffset(days=1)
-
-        for dn in range(0, start_date.days_in_month):
-            d = start_date + pd.DateOffset(days=dn)
-
-            x_pred = self.get_pred_data(x_train, y_train, d, num_days, num_weeks)
-
-            predictor.fit(x_train, y_train.values.ravel())
-
-            y_pred = predictor.predict(x_pred)
-
-            x_train = x_train.append(x_pred)
-
-            y_train_new = y_train[-1:].copy()
-            y_train_new.iloc[0][0] = y_pred.ravel()
-            y_train_new.index += pd.DateOffset(days=1)
-
-            y_train = y_train.append(y_train_new)
-
-        end_date = y_train.index.max()
-
-        self.__data_result = y_train[start_date:end_date]
         self.__data_result.columns = [self.__metric_forecast_field]
         self.__data_result[self.__metric_fact_field] = df_test[start_date:end_date][self.__metric_name_field]
 
@@ -183,7 +153,6 @@ class SupervisedPredictionService(PredictorService):
         end_date = y_train.index.max()
 
         return y_train[start_date:end_date]
-
 
     def get_data_result(self):
         return self.__data_result
