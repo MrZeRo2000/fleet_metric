@@ -3,6 +3,9 @@ class PredictorService:
     def set_up(self):
         pass
 
+    def get_predict_params(self, category_id=None):
+        raise NotImplementedError("Method get_predict_params not implemented")
+
     def calc_test(self, df, predict_params):
         raise NotImplementedError("Method predict_test not implemented")
 

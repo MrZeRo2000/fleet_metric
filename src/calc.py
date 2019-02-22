@@ -41,7 +41,8 @@ class CalculationService:
 
         df = self.data_processor_service.load_category_data(category_id)
         df = self.data_processor_service.cleanup_data(df)
-        predict_params = self.configuration.get().get("model").get("sarimax_parameters")[category_id]
+        predict_params = self.predictor_service.get_predict_params(category_id)
+        self.logger.info("Params: " + str(predict_params))
 
         self.logger.info("Test calculation")
         self.predictor_service.set_up()

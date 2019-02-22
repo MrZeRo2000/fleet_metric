@@ -1,6 +1,7 @@
 
 from ps import PredictorService
 from aps import ARIMAPredictionService
+from sps import SupervisedPredictionService
 from context import inject, component
 
 
@@ -12,5 +13,15 @@ class PredictServiceResolver:
     @inject
     def arima_predictor_service(self) -> ARIMAPredictionService: pass
 
+    # noinspection PyPropertyDefinition
+    @property
+    @inject
+    def supervised_predictor_service(self) -> SupervisedPredictionService: pass
+
     def get_service(self, predictor_type) -> PredictorService:
-        return self.arima_predictor_service
+        predictor_services = {
+            "ARIMA": self.arima_predictor_service,
+            "SUPERVISED": self.supervised_predictor_service
+        }
+
+        return predictor_services[predictor_type]

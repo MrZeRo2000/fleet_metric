@@ -69,7 +69,9 @@ class Main:
                 self.data_processor_service.save_split_data()
 
             if self.configuration.get().get("tasks").get("calculation"):
-                self.calculation_service.predictor_service = self.predict_service_resolver.get_service(None)
+                self.calculation_service.predictor_service = self.predict_service_resolver.get_service(
+                    self.configuration.get().get("calculation_engine")
+                )
                 self.calculation_service.process_tasks()
 
             if self.configuration.get().get("tasks").get("database_upload"):

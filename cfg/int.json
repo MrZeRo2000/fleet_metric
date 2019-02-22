@@ -90,18 +90,20 @@
       }
     },
     "supervised_parameters": {
-      "n_estimators":10000,
-      "max_depth":3,
+      "n_estimators":5000,
+      "max_depth":4,
       "learning_rate":0.1,
       "num_days":35,
       "num_weeks":5
     }
   },
+  "calculation_engine_arima":"ARIMA",
+  "calculation_engine_supervised":"SUPERVISED",
+  "calculation_engine":"SUPERVISED",
   "tasks": {
     "database_load":false,
     "database_upload":true,
-    "calculation":false,
-    "calculation_engine":"ARIMA",
+    "calculation":true,
     "categories":["VIE"]
   }
 }

@@ -33,6 +33,7 @@ class TestSPS(ContextTestCase):
 
         self.show_plots = True
 
+    @unittest.skip
     def testSPS(self):
         metric_name_field = self.configuration.get().get("model").get("metric_name_field")
         df = self.data_processor_service.load_category_data("VIE")
@@ -42,11 +43,12 @@ class TestSPS(ContextTestCase):
         sps = self.supervised_prediction_service
         sps.set_up()
         result_forecast, result_fact, result_prev = sps.calc_test(df, predict_params)
-        data_result = sps.get_data_result()
+        data_result, df_m_p, month_correction = sps.get_data_result()
 
         print("Forecast: {0:.2f}".format(result_forecast))
         print("Fact: {0:.2f}".format(result_fact))
         print("Previous: {0:.2f}".format(result_prev))
+        print("Month correction: {0:.2f}%".format(month_correction * 100))
         print("Prediction error: {0:.2f}%".format(abs(result_fact - result_forecast) / result_fact * 100))
 
         if self.show_plots:
@@ -55,4 +57,26 @@ class TestSPS(ContextTestCase):
 
             data_result.plot()
             plt.title("Test results")
+            plt.show()
+
+#    @unittest.skip
+    def testSPSPredict(self):
+        metric_name_field = self.configuration.get().get("model").get("metric_name_field")
+        df = self.data_processor_service.load_category_data("VIE")
+        df = self.data_processor_service.cleanup_data(df)
+        predict_params = self.configuration.get().get("model").get("supervised_parameters")
+
+        sps = self.supervised_prediction_service
+        sps.set_up()
+        result_forecast, result_prev = sps.calc_predict(df, predict_params)
+
+        data_result, df_m_p, month_correction = sps.get_data_result()
+
+        print("Forecast: {0:.2f}".format(result_forecast))
+        print("Previous: {0:.2f}".format(result_prev))
+        print("Month correction: {0:.2f}%".format(month_correction*100))
+
+        if self.show_plots:
+            data_result.plot()
+            plt.title("Prediction")
             plt.show()

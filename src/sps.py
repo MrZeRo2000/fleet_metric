@@ -7,6 +7,7 @@ import pandas as pd
 from ps import PredictorService
 from dts import DataProcessorService
 import xgboost
+from log import log_method
 
 
 @component
@@ -34,11 +35,18 @@ class SupervisedPredictionService(PredictorService):
         self.__metric_fact_field = None
         self.__metric_name_field = None
 
+        self.__month_correction = 0
+        self.__df_m_p = None
+
     def set_up(self):
         self.__metric_forecast_field = self.configuration.get().get("model").get("metric_forecast_field")
         self.__metric_fact_field = self.configuration.get().get("model").get("metric_fact_field")
         self.__metric_name_field = self.configuration.get().get("model").get("metric_name_field")
 
+    def get_predict_params(self, category_id=None):
+        return self.configuration.get().get("model").get("supervised_parameters")
+
+    @log_method
     def get_shifted_data(self, df, num_days=40, num_weeks=2):
         df = df.copy()
 
@@ -92,6 +100,7 @@ class SupervisedPredictionService(PredictorService):
 
         return x_pred
 
+    @log_method
     def calc_test(self, df, predict_params):
         df_train, df_test = self.data_processor_service.get_train_test_data(df)
 
@@ -100,7 +109,6 @@ class SupervisedPredictionService(PredictorService):
         start_date = self.__data_result.index.min()
         end_date = self.__data_result.index.max()
 
-        self.__data_result.columns = [self.__metric_forecast_field]
         self.__data_result[self.__metric_fact_field] = df_test[start_date:end_date][self.__metric_name_field]
 
         last_day_prev = df_test.index.max() - pd.DateOffset(days=df_test.index.max().day)
@@ -112,10 +120,40 @@ class SupervisedPredictionService(PredictorService):
 
         return result_forecast, result_fact, result_prev
 
-    def calc_predict(self, df, predict_params):
-        raise NotImplementedError("Method predict_test not implemented")
+    def calc_month_correction(self, df):
+        # resampled to monthly
+        df_m = df.resample('M', axis=0, label='right').mean()
 
+        # percent changes
+        df_m_p = df_m.pct_change().dropna()
+        df_m_p.index = df_m_p.index.map(lambda x: datetime.datetime(x.year, x.month, 1))
+        self.__df_m_p = df_m_p
+
+        # last year
+        self.__df_m_p_ly = df_m_p[df_m_p.index.max() - pd.DateOffset(years=1) + pd.DateOffset(months=1):df_m_p.index.max()]
+        self.__df_m_p_py = df_m_p.shift(axis=0, periods=12)[df_m_p.index.max() - pd.DateOffset(years=1) + pd.DateOffset(months=1):df_m_p.index.max()]
+
+        self.__month_correction = 0
+        df_m_p_prev_month = df_m_p[df_m_p.index.max() - pd.DateOffset(months=11):df_m_p.index.max() - pd.DateOffset(months=11)]
+        if not df_m_p_prev_month.empty > 0:
+            self.__month_correction = df_m_p_prev_month[:1][self.__metric_name_field].values[0]
+
+    @log_method
+    def calc_predict(self, df, predict_params):
+        self.__data_result = self.predict(df, predict_params)
+
+        last_day_prev = df.index.max()
+        first_day_prev = last_day_prev.replace(day=1)
+
+        result_forecast = self.__data_result[self.__metric_forecast_field].sum()
+        result_prev = df[first_day_prev:last_day_prev][self.__metric_name_field].sum()
+
+        return result_forecast, result_prev
+
+    @log_method
     def predict(self, df, predict_params):
+        self.calc_month_correction(df)
+
         num_days = predict_params["num_days"]
         num_weeks = predict_params["num_weeks"]
 
@@ -136,6 +174,8 @@ class SupervisedPredictionService(PredictorService):
         for dn in range(0, start_date.days_in_month):
             d = start_date + pd.DateOffset(days=dn)
 
+            self.logger.debug("Calculating {}".format(d))
+
             x_pred = self.get_pred_data(x_train, y_train, d, num_days, num_weeks)
 
             predictor.fit(x_train, y_train.values.ravel())
@@ -152,7 +192,9 @@ class SupervisedPredictionService(PredictorService):
 
         end_date = y_train.index.max()
 
-        return y_train[start_date:end_date]
+        y_train.columns = [self.__metric_forecast_field]
+
+        return y_train[start_date:end_date] * (1 + self.__month_correction)
 
     def get_data_result(self):
-        return self.__data_result
+        return self.__data_result, self.__df_m_p, self.__month_correction

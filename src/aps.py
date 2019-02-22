@@ -1,4 +1,3 @@
-
 from context import component, inject
 import datetime
 from config import Configuration
@@ -6,6 +5,7 @@ from logging import Logger
 import pandas as pd
 from statsmodels.tsa.statespace.sarimax import SARIMAX
 from ps import PredictorService
+from log import log_method
 
 
 @component
@@ -37,6 +37,9 @@ class ARIMAPredictionService(PredictorService):
         self.__metric_fact_field = self.configuration.get().get("model").get("metric_fact_field")
         self.__metric_name_field = self.configuration.get().get("model").get("metric_name_field")
 
+    def get_predict_params(self, category_id=None):
+        return self.configuration.get().get("model").get("sarimax_parameters")[category_id]
+
     def get_monthly_data(self):
         return self.__df_m_p_ly, self.__df_m_p_py
 
@@ -61,6 +64,7 @@ class ARIMAPredictionService(PredictorService):
         if not df_m_p_prev_month.empty > 0:
             self.__month_correction = df_m_p_prev_month[:1][self.__metric_name_field].values[0]
 
+    @log_method
     def calc_test(self, df, predict_params):
         df_train = df[:-35]
         df_test = df[-35:]
@@ -82,6 +86,7 @@ class ARIMAPredictionService(PredictorService):
 
         return result_forecast, result_fact, result_prev
 
+    @log_method
     def calc_predict(self, df, predict_params):
         start_date = df.index.max() + pd.DateOffset(days=1)
         end_date = start_date + pd.DateOffset(months=1) - pd.DateOffset(days=1)
@@ -95,6 +100,7 @@ class ARIMAPredictionService(PredictorService):
 
         return result_forecast, result_prev
 
+    @log_method
     def predict(self, df, predict_params, start_date, end_date):
         self.calc_month_correction(df)
 
