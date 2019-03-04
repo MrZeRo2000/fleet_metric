@@ -91,6 +91,7 @@
       }
     },
     "supervised_parameters": {
+      "nthread":2,
       "n_estimators":5000,
       "max_depth":4,
       "learning_rate":0.1,
