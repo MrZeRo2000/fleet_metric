@@ -31,7 +31,8 @@
     "data_file_name":"../data/ts_metrics.txt",
     "data_file_cat_name":"../data/ts_metrics_{metric}_{cat}.txt",
     "test_result_file_cat_name":"../data/ts_metrics_test_out_{metric}_{cat}.txt",
-    "result_file_cat_name":"../data/ts_metrics_out_{metric}_{cat}.txt"
+    "result_file_cat_name":"../data/ts_metrics_out_{metric}_{cat}.txt",
+    "result_pic_file_name":"../data/{cat}"
   },
   "model": {
     "ts_field":"DAY_ID",
