@@ -30,16 +30,16 @@ class TestDataAnalysis(ContextTestCase):
         context.register_singleton_component(ARIMAPredictionService())
 
         self.configuration.load("../test/cfg/test.json")
-        self.category_id = "VIE"
+        self.category_id = "BER"
 
         self.show_plots = True
 
 #    @unittest.skip
     def testAPS(self):
         metric_name_field = self.configuration.get().get("model").get("metric_name_field")
-        df = self.data_processor_service.load_category_data("VIE")
+        df = self.data_processor_service.load_category_data(self.category_id)
         df = self.data_processor_service.cleanup_data(df)
-        predict_params = self.configuration.get().get("model").get("sarimax_parameters")["VIE"]
+        predict_params = self.configuration.get().get("model").get("sarimax_parameters")[self.category_id]
 
         aps = self.arima_prediction_service
         aps.set_up()
@@ -78,9 +78,9 @@ class TestDataAnalysis(ContextTestCase):
 
 #    @unittest.skip
     def testAPSPredict(self):
-        df = self.data_processor_service.load_category_data("VIE")
+        df = self.data_processor_service.load_category_data(self.category_id)
         df = self.data_processor_service.cleanup_data(df)
-        predict_params = self.configuration.get().get("model").get("sarimax_parameters")["VIE"]
+        predict_params = self.configuration.get().get("model").get("sarimax_parameters")[self.category_id]
 
         aps = self.arima_prediction_service
         aps.set_up()

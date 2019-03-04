@@ -1,0 +1,1 @@
+%USERPROFILE%/Anaconda3/python ../src/main.py %1

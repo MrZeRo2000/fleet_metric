@@ -43,7 +43,7 @@
     "metric_name_table_field":"METRIC_NAME",
     "sarimax_parameters": {
       "BER": {
-        "order":[2, 1, 1],
+        "order":[3, 1, 1],
         "seasonal_order":[3, 0, 1, 7]
       },
       "VIE": {
@@ -99,11 +99,27 @@
   },
   "calculation_engine_arima":"ARIMA",
   "calculation_engine_supervised":"SUPERVISED",
-  "calculation_engine":"SUPERVISED",
+  "calculation_engine":"ARIMA",
   "tasks": {
     "database_load":false,
     "database_upload":true,
     "calculation":true,
-    "categories":["VIE"]
+    "categories_test":[
+      "BER"
+      ],
+    "categories":[
+      "BER",
+      "VIE",
+      "BRU",
+      "CGN",
+      "CPH",
+      "DUS",
+      "HAM",
+      "HEL",
+      "LIS",
+      "LON",
+      "MIL",
+      "MUC"
+    ]
   }
 }
