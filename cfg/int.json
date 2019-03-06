@@ -104,9 +104,8 @@
   "calculation_engine":"SUPERVISED",
   "tasks": {
     "database_load":false,
-    "database_upload":true,
+    "database_upload":false,
     "calculation":true,
-    "plot_result":true,
     "categories_test":[
       "BER"
       ],

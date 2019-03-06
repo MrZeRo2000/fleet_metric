@@ -1,0 +1,1 @@
+%USERPROFILE%/Anaconda3/python ../src/plot.py %1
