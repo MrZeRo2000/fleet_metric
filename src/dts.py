@@ -7,6 +7,7 @@ from log import log_method
 import pandas as pd
 import datetime
 import csv
+import os
 
 
 @component
@@ -25,7 +26,8 @@ class DataProcessorService:
     @log_method
     def read_input_data(self):
         data_file_name = self.configuration.get().get("data_files").get("data_file_name")
-        return pd.read_csv(data_file_name, self.configuration.CSV_DELIMITER)
+        full_file_name = os.path.abspath(os.path.join(os.path.dirname(__file__), data_file_name))
+        return pd.read_csv(full_file_name, self.configuration.CSV_DELIMITER)
 
     @log_method
     def split_input_data(self):
@@ -50,8 +52,10 @@ class DataProcessorService:
 
     def get_file_name(self, file_param_name, category_id):
         metric_name_field = self.configuration.get().get("model").get("metric_name_field")
-        return self.configuration.get().get("data_files").get(file_param_name)\
+        data_file_name = self.configuration.get().get("data_files").get(file_param_name)\
             .replace("{cat}", category_id).replace("{metric}", metric_name_field)
+        full_file_name = os.path.abspath(os.path.join(os.path.dirname(__file__), data_file_name))
+        return full_file_name
 
     def get_data_file_name(self, category_id):
         return self.get_file_name("data_file_cat_name", category_id)
