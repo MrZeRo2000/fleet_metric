@@ -1,0 +1,1 @@
+%USERPROFILE%/AppData/Local/Programs/Python/Python37/python ../src/main.py %1

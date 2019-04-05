@@ -5,6 +5,8 @@ from logging import Logger
 from ps import PredictorService
 from dts import DataProcessorService
 from log import log_method
+from operator import methodcaller
+import concurrent.futures
 
 
 @component
@@ -68,5 +70,10 @@ class CalculationService:
     @log_method
     def process_tasks(self):
         categories = self.configuration.get().get("tasks").get("categories")
-        for c in categories:
-            self.process_category(c)
+        list(map(self.process_category, categories))
+
+    @log_method
+    def process_tasks_parallel(self):
+        categories = self.configuration.get().get("tasks").get("categories")
+        with concurrent.futures.ProcessPoolExecutor(max_workers=2) as executor:
+            executor.map(self.process_category, categories)

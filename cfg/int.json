@@ -103,8 +103,8 @@
   "calculation_engine_supervised":"SUPERVISED",
   "calculation_engine":"ARIMA",
   "tasks": {
-    "database_load":true,
-    "database_upload":true,
+    "database_load":false,
+    "database_upload":false,
     "calculation":true,
     "categories_test":[
       "BER"
