@@ -46,10 +46,10 @@ class CalculationService:
         predict_params = self.predictor_service.get_predict_params(category_id)
         self.logger.info("Params: " + str(predict_params))
 
-        try:
-            self.logger.info("Clearing old results")
-            self.data_processor_service.clear_result_data(category_id)
+        self.logger.info("Clearing old results")
+        self.data_processor_service.clear_result_data(category_id)
 
+        try:
             self.logger.info("Test calculation")
             self.predictor_service.set_up()
             self.predictor_service.calc_test(df, predict_params)
