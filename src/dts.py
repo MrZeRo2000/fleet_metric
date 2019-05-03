@@ -99,6 +99,12 @@ class DataProcessorService:
 
         return df[df[metric_name_field] > metric_threshold]
 
+    def clear_result_data(self, category_id):
+        files = [self.get_test_result_file_name(category_id), self.get_result_file_name(category_id)]
+        for f in files:
+            if os.path.isfile(f):
+                os.remove(f)
+
     def save_result_data(self, category_id, df):
         metric_fact_field = self.configuration.get().get("model").get("metric_fact_field")
         if metric_fact_field in df.columns:

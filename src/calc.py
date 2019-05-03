@@ -46,26 +46,33 @@ class CalculationService:
         predict_params = self.predictor_service.get_predict_params(category_id)
         self.logger.info("Params: " + str(predict_params))
 
-        self.logger.info("Test calculation")
-        self.predictor_service.set_up()
-        self.predictor_service.calc_test(df, predict_params)
-        data_result = self.predictor_service.get_data_result()
+        try:
+            self.logger.info("Clearing old results")
+            self.data_processor_service.clear_result_data(category_id)
 
-        df_result = data_result[0]
-        self.data_processor_service.save_result_data(category_id, df_result)
+            self.logger.info("Test calculation")
+            self.predictor_service.set_up()
+            self.predictor_service.calc_test(df, predict_params)
+            data_result = self.predictor_service.get_data_result()
 
-        self.logger.info("Test calculation completed")
+            df_result = data_result[0]
+            self.data_processor_service.save_result_data(category_id, df_result)
 
-        self.logger.info("Predict calculation")
-        self.predictor_service.calc_predict(df, predict_params)
-        data_result = self.predictor_service.get_data_result()
+            self.logger.info("Test calculation completed")
 
-        df_result = data_result[0]
-        self.data_processor_service.save_result_data(category_id, df_result)
+            self.logger.info("Predict calculation")
+            self.predictor_service.calc_predict(df, predict_params)
+            data_result = self.predictor_service.get_data_result()
 
-        self.logger.info("Predict calculation completed")
+            df_result = data_result[0]
+            self.data_processor_service.save_result_data(category_id, df_result)
 
-        self.logger.info("Processed " + category_id)
+            self.logger.info("Predict calculation completed")
+
+            self.logger.info("Processed " + category_id)
+
+        except Exception as e:
+            self.logger.warning("Error calculating " + category_id, exc_info=True)
 
     @log_method
     def process_tasks(self):

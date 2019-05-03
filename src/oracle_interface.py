@@ -113,25 +113,33 @@ class OracleLoader:
         for c in categories:
             self.logger.debug("Processing result " + c)
             result_file_name = self.data_processor_service.get_result_file_name(c)
-            df_r = pd.read_csv(result_file_name, sep=self.configuration.CSV_DELIMITER)
-            df_r[category_field] = c
-            df_r[metric_name_table_field] = metric_name_field
 
-            stmt = "INSERT INTO dn_ml_metric_out (day_id, forecast, category_id, metric_name) VALUES (:1, :2, :3, :4)"
-            ou.bulk_insert(stmt, df_r)
-            ou.commit()
-            self.logger.debug("Processed result " + c)
+            if os.path.isfile(result_file_name):
+                df_r = pd.read_csv(result_file_name, sep=self.configuration.CSV_DELIMITER)
+                df_r[category_field] = c
+                df_r[metric_name_table_field] = metric_name_field
+
+                stmt = "INSERT INTO dn_ml_metric_out (day_id, forecast, category_id, metric_name) VALUES (:1, :2, :3, :4)"
+                ou.bulk_insert(stmt, df_r)
+                ou.commit()
+                self.logger.debug("Processed result " + c)
+            else:
+                self.logger.debug("Result not found for " + c)
 
             self.logger.debug("Processing test result " + c)
             test_result_file_name = self.data_processor_service.get_test_result_file_name(c)
-            df_t = pd.read_csv(test_result_file_name, sep=self.configuration.CSV_DELIMITER)
-            df_t[category_field] = c
-            df_t[metric_name_table_field] = metric_name_field
 
-            stmt = "INSERT INTO dn_ml_metric_test_out (day_id, forecast, fact, category_id, metric_name) VALUES (:1, :2, :3, :4, :5)"
-            ou.bulk_insert(stmt, df_t)
-            ou.commit()
-            self.logger.debug("Processed test result " + c)
+            if os.path.isfile(test_result_file_name):
+                df_t = pd.read_csv(test_result_file_name, sep=self.configuration.CSV_DELIMITER)
+                df_t[category_field] = c
+                df_t[metric_name_table_field] = metric_name_field
+
+                stmt = "INSERT INTO dn_ml_metric_test_out (day_id, forecast, fact, category_id, metric_name) VALUES (:1, :2, :3, :4, :5)"
+                ou.bulk_insert(stmt, df_t)
+                ou.commit()
+                self.logger.debug("Processed test result " + c)
+            else:
+                self.logger.debug("Test result not found for " + c)
 
 
 class OracleLogHandler(logging.Handler):

@@ -16,9 +16,14 @@ class TestDataAnalysis(ContextTestCase):
     def setUp(self):
         ContextTestCase.setUp(self)
         self.configuration.load("../test/cfg/test.json")
-        self.category_id = "VIE"
+        self.category_id = "LON"
+        self.metric_name = "INCOME_NETTO"
 
-        data_file_name = self.configuration.get().get("data_files").get("data_file_cat_name").replace("{cat}", self.category_id)
+        data_file_name = self.configuration.get().\
+            get("data_files").\
+            get("data_file_cat_name").\
+            replace("{cat}", self.category_id).\
+            replace("{metric}", self.metric_name)
         ts_field = self.configuration.get().get("model").get("ts_field")
         self.df = pd.read_csv(data_file_name, self.configuration.CSV_DELIMITER)
         self.df.index = pd.to_datetime(self.df[ts_field], format="%Y-%m-%d")
